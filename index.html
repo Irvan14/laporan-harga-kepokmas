@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Laporan Harga Barang</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+
+    .box {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 6px;
+      max-width: 1000px;
+      margin: auto;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    .subjudul {
+      text-align: center;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    input[type="date"], select {
+      padding: 6px;
+      margin-right: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      font-size: 14px;
+    }
+
+    th {
+      background: #e9ecef;
+      text-align: center;
+    }
+
+    .group {
+      background: #dbe5f1;
+      font-weight: bold;
+    }
+
+    input.harga {
+      width: 100%;
+      padding: 4px;
+      box-sizing: border-box;
+    }
+
+    .btn {
+      margin-top: 20px;
+      padding: 10px 25px;
+      font-size: 15px;
+      background: #0d6efd;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: #084298;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>LAPORAN PERKEMBANGAN HARGA</h2>
+  <div class="subjudul">
+    Barang Kebutuhan Pokok di Kabupaten Cilacap
+  </div>
+
+  <label>Tanggal:</label>
+  <input type="date" id="tanggal">
+
+  <label>Pasar:</label>
+  <select id="pasar">
+    <option>Pasar Tanjungsari</option>
+    <option>Pasar Sidodadi</option>
+    <option>Pasar Gede</option>
+  </select>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:5%">No</th>
+        <th style="width:50%">Nama Barang</th>
+        <th style="width:25%">Harga</th>
+        <th style="width:10%">Satuan</th>
+      </tr>
+    </thead>
+    <tbody id="tabelBarang"></tbody>
+  </table>
+
+  <button type="button" class="btn" onclick="simpan()">💾 SIMPAN SEMUA</button>
+</div>
+
+<!-- ================= STEP 2 : DATA & SCRIPT ================= -->
+
+<script>
+/* ====== DATA BARANG (SESUAI FORMAT KEPOKMAS) ====== */
+const barang = [
+  ["BERAS", null],
+  ["Beras IR64 (C4) Medium","Kg"],
+  ["Beras Saigon Premium","Kg"],
+  ["Beras SPHP","Kg"],
+
+  ["GULA PASIR", null],
+  ["Gula Pasir Kristal Putih (Medium)","Kg"],
+
+  ["MINYAK GORENG", null],
+  ["Minyak Goreng Curah","Liter"],
+  ["Minyak Goreng Rakyat (Minyakkita)","Liter"],
+  ["Minyak Goreng Kemasan Premium","Liter"],
+
+  ["DAGING", null],
+  ["Daging Sapi Murni (Has)","Kg"],
+  ["Daging Sapi KW 2","Kg"],
+  ["Daging Ayam Ras","Kg"],
+  ["Daging Ayam Kampung","Kg"],
+
+  ["TELUR", null],
+  ["Telur Ayam Ras","Kg"],
+  ["Telur Ayam Kampung (±21 butir)","Paket"],
+
+  ["LAINNYA", null],
+  ["Tepung Terigu Bogasari Segitiga Biru","Kg"],
+  ["Jeruk Lokal","Kg"],
+  ["Pisang Ambon","Kg"],
+  ["Susu Balita (setara SGM 400 gr)","Pcs"],
+  ["Tempe","Kg"],
+  ["Tahu","Kg"],
+
+  ["KACANG KEDELAI", null],
+  ["Kedelai Kuning Lokal","Kg"],
+  ["Kedelai Impor","Kg"],
+
+  ["CABE", null],
+  ["Cabe Merah Besar Biasa TM","Kg"],
+  ["Cabe Merah Besar Keriting","Kg"],
+  ["Cabe Rawit Merah","Kg"],
+  ["Cabe Rawit Hijau","Kg"],
+
+  ["BAWANG", null],
+  ["Bawang Merah","Kg"],
+  ["Bawang Putih Apel","Kg"],
+  ["Bawang Putih Kating","Kg"],
+
+  ["IKAN LAUT", null],
+  ["Ikan Kembung","Kg"],
+  ["Ikan Tongkol","Kg"],
+  ["Ikan Bandeng Segar","Kg"],
+  ["Ikan Teri","Kg"],
+  ["Ikan Tuna","Kg"],
+  ["Udang Sedang","Kg"]
+];
+
+/* ====== GENERATE TABEL ====== */
+let index = 0;
+const tbody = document.getElementById("tabelBarang");
+
+barang.forEach(b => {
+  if (b[1] === null) {
+    tbody.innerHTML += `
+      <tr class="group">
+        <td colspan="4">${b[0]}</td>
+      </tr>`;
+  } else {
+    tbody.innerHTML += `
+      <tr>
+        <td style="text-align:center">${index + 1}</td>
+        <td>${b[0]}</td>
+        <td><input class="harga" id="harga${index}"></td>
+        <td style="text-align:center">${b[1]}</td>
+      </tr>`;
+    index++;
+  }
+});
+
+/* ====== SIMPAN DATA ====== */
+function simpan(){
+  const items = [];
+  let i = 0;
+
+  barang.forEach(b => {
+    if (b[1] !== null) {
+      const harga = document.getElementById("harga"+i).value;
+      if (harga !== "") {
+        items.push({
+          nama: b[0],
+          harga: harga,
+          satuan: b[1]
+        });
+      }
+      i++;
+    }
+  });
+
+  fetch("https://script.google.com/macros/s/AKfycbySnvNjVLzjOFDPZkyfcWvqfuyKmuAGn1V3oeZhCEolXngDDmGxZWphLIO2cUqzWHRZEA/exec", {
+    method: "POST",
+    mode: "no-cors",
+    body: JSON.stringify({
+      tanggal: document.getElementById("tanggal").value,
+      pasar: document.getElementById("pasar").value,
+      items: items
+    })
+  }).then(() => {
+    alert("Data berhasil disimpan ✅");
+  });
+}
+</script>
+
+</body>
+</html>
